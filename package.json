@@ -1,0 +1,80 @@
+{
+  "name": "bitmex-duet",
+  "version": "1.0.0",
+  "description": "bitmex duet auto trader",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "license": "GPL3",
+  "main": "dist/src/index.js",
+  "typings": "dist/src/index.d.ts",
+  "directories": {
+    "test": "dist/test/"
+  },
+  "config": {
+    "mocha": "cross-env NODE_ENV=test istanbul cover _mocha"
+  },
+  "scripts": {
+    "rm": "rimraf dist",
+    "format": "prettier --config .prettierrc --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "tsc": "npm run rm && tsc -p tsconfig.development.json",
+    "build": "rollup -c rollup.config.js",
+    "deploy": "ENV=prod npm run build",
+    "pm2": "pm2 start ecosystem.config.js",
+    "start": "node runner.js",
+    "start:dev": "node dist/src/lib/bin/start.js",
+    "tslint": "tslint --project ./tslint.json",
+    "test:m": "$npm_package_config_mocha dist/**/hunter.test.js -- --timeout 15000 --require intelli-espower-loader && npm run remap-report",
+    "test": "$npm_package_config_mocha dist/**/*.test.js -- --timeout 15000 --require intelli-espower-loader && npm run remap-report",
+    "test:indicator": "$npm_package_config_mocha dist/**/indicator.test.js -- --timeout 50000 --require intelli-espower-loader && npm run remap-report",
+    "test:rest": "$npm_package_config_mocha dist/**/rest.test.js -- --timeout 50000 --require intelli-espower-loader && npm run remap-report",
+    "test:db": "$npm_package_config_mocha dist/**/storage.test.js -- --timeout 5000 --require intelli-espower-loader && npm run remap-report",
+    "test:trader": "$npm_package_config_mocha dist/**/trader.test.js -- --timeout 50000 --require intelli-espower-loader && npm run remap-report",
+    "test:rule": "$npm_package_config_mocha dist/**/ruler.test.js -- --timeout 5000 --require intelli-espower-loader && npm run remap-report",
+    "remap-report": "remap-istanbul -i coverage/coverage.json -o coverage/lcov-report -t html",
+    "report": "node dist/src/lib/bin/report.js",
+    "prepare": "npm run rm && tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "bitmex-realtime-api": "0.3.0",
+    "config": "^2.0.1",
+    "cross-env": "^5.2.0",
+    "crypto": "^1.0.1",
+    "execution-time": "^1.2.0",
+    "glob": "^7.1.2",
+    "moment": "^2.22.2",
+    "node-fetch": "^2.2.0",
+    "node-schedule": "^1.3.0",
+    "pm2": "^3.0.3",
+    "qs": "^6.5.2",
+    "rimraf": "^2.6.2",
+    "technicalindicators": "^2.0.5",
+    "toml": "^2.3.3",
+    "winston": "^3.0.0-rc1"
+  },
+  "devDependencies": {
+    "@types/config": "0.0.34",
+    "@types/mocha": "^5.2.3",
+    "@types/node": "^10.5.6",
+    "@types/node-fetch": "^2.1.1",
+    "@types/node-schedule": "^1.2.2",
+    "@types/pouchdb": "^6.3.2",
+    "@types/pouchdb-find": "^6.3.3",
+    "@types/power-assert": "^1.4.29",
+    "intelli-espower-loader": "^1.0.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^5.2.0",
+    "power-assert": "^1.6.0",
+    "prettier": "^1.14.0",
+    "remap-istanbul": "^0.11.1",
+    "rollup": "^0.61.2",
+    "rollup-plugin-commonjs": "^9.1.3",
+    "rollup-plugin-javascript-obfuscator": "^1.0.1",
+    "rollup-plugin-terser": "^1.0.1",
+    "rollup-plugin-typescript2": "^0.15.0",
+    "ts-node": "^7.0.0",
+    "tslint": "^5.11.0",
+    "typescript": "^3.0.1"
+  }
+}

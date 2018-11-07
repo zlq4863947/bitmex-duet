@@ -1,0 +1,41 @@
+# 配置文件
+
+###
+### [exchange]
+### 
+### 交易所相关配置
+###
+[exchange]
+  # 运行模式
+  # test : 模拟交易(testnet)
+  # real : 真实交易
+  mode = "test"
+  [exchange.real]
+    apiKey = "zcc"
+    secret = "wer"
+  [exchange.test]
+    apiKey = "xx"
+    secret = "aaa"
+
+###
+### [app]
+### 
+### 机器人相关配置
+###
+[app]
+  # 交易商品
+  symbol = "XBTUSD"
+  # 交易数量
+  amount = 20
+  # 交易方向 Buy/Sell
+  side = "Buy"
+  # 周期
+  resolution = 1
+
+###
+### [log]
+### 日志配置
+###
+[log]
+  # 是否开启debug信息
+  debug = false
