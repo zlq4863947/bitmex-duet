@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "bitmex-realtime-api": "0.3.0",
+    "commander": "^2.19.0",
     "config": "^2.0.1",
     "cross-env": "^5.2.0",
     "crypto": "^1.0.1",

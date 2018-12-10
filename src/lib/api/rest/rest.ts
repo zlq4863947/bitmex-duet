@@ -159,6 +159,14 @@ export class Rest {
     };
   }
 
+  async updateLeverage(data: { [attr: string]: any }): Promise<{ ratelimit: types.IRateLimit; order: types.Order }> {
+    const res = await this.request(types.HttpMothed.POST, Endpoints.PositionLeverage, data);
+    return {
+      ratelimit: this.getRateLimit(res.headers),
+      order: <types.Order>res.body,
+    };
+  }
+
   async getOrderBook(data: { [attr: string]: any }): Promise<{ ratelimit: types.IRateLimit; orderBooks: types.OrderBookL2[] }> {
     const res = await this.request(types.HttpMothed.GET, Endpoints.OrderBookL2, data);
     return {

@@ -10,9 +10,11 @@ export interface IStatus {
   symbol: string;
   resolution: number;
   amount: number;
+  leverage: number;
   side: types.OrderSide;
   inverseSide: types.OrderSide;
   isInitSell: boolean;
+  isOrder: boolean;
   // 当前步骤
   step: types.Step;
 }
@@ -33,9 +35,11 @@ export class Robot {
       symbol: config.app.symbol,
       amount: config.app.amount,
       side: config.app.side,
+      leverage: config.app.leverage,
       resolution: config.app.resolution,
       inverseSide: config.app.side === types.OrderSide.Sell ? types.OrderSide.Buy : types.OrderSide.Sell,
       isInitSell: config.app.side === types.OrderSide.Sell,
+      isOrder: config.app.isOrder ? true : false,
       step: types.Step.Order1,
     };
     this.event = new Event();
@@ -43,12 +47,18 @@ export class Robot {
   }
 
   async start() {
+    logger.info(`启动机器人`);
+    await this.trader.updateLeverage(this.status.symbol, this.status.leverage);
     Scheduler.min(this.status.resolution, async () => {
-      logger.info(`执行${this.status.resolution}分钟定时任务。。。。`);
-      logger.info(`系统状态: ${JSON.stringify(this.status)}`);
-      const res = await this.rule();
-      if (res.action) {
-        await this.doOrder(res.action, res.close);
+      try {
+        logger.info(`执行${this.status.resolution}分钟定时任务。。。。`);
+        logger.info(`系统状态: ${JSON.stringify(this.status)}`);
+        const res = await this.rule();
+        if (res.action) {
+          await this.doOrder(res.action, res.close);
+        }
+      } catch(err) {
+        logger.error(`定时任务[异常终了] ${err.message}`);
       }
     });
   }
@@ -68,21 +78,23 @@ export class Robot {
           amount: this.status.amount,
         }
         logger.info(`订单信息: ${JSON.stringify(input)}`);
-        const orderInfo = await this.trader.order(input);
-        if (!orderInfo) {
-          throw Error(`订单${this.status.step}下单异常 - 执行返回结果为空`);
-        }
-        if (orderInfo.error) {
-          if (orderInfo.error.message.includes('insufficient Available Balance')) {
-            throw Error(`订单${this.status.step}下单异常 - 账户余额不足，取消下单。${orderInfo.error.message}`);
-          } else if (orderInfo.error.message.includes('overloaded')) {
-            throw Error(`订单${this.status.step}下单异常 - 系统过载。${orderInfo.error.message}`);
-          } else {
-            throw Error(`订单${this.status.step}下单异常 - 未知错误。${orderInfo.error.message}`);
+        if (this.status.isOrder) {
+          const orderInfo = await this.trader.order(input);
+          if (!orderInfo) {
+            throw Error(`订单${this.status.step}下单异常 - 执行返回结果为空`);
           }
-        }
-        if (orderInfo.ordStatus === types.OrderStatus.Canceled || orderInfo.ordStatus === types.OrderStatus.Rejected) {
-          throw Error(`订单${this.status.step}被${orderInfo.ordStatus === types.OrderStatus.Canceled ? '取消' : '拒绝'}`);
+          if (orderInfo.error) {
+            if (orderInfo.error.message.includes('insufficient Available Balance')) {
+              throw Error(`订单${this.status.step}下单异常 - 账户余额不足，取消下单。${orderInfo.error.message}`);
+            } else if (orderInfo.error.message.includes('overloaded')) {
+              throw Error(`订单${this.status.step}下单异常 - 系统过载。${orderInfo.error.message}`);
+            } else {
+              throw Error(`订单${this.status.step}下单异常 - 未知错误。${orderInfo.error.message}`);
+            }
+          }
+          if (orderInfo.ordStatus === types.OrderStatus.Canceled || orderInfo.ordStatus === types.OrderStatus.Rejected) {
+            throw Error(`订单${this.status.step}被${orderInfo.ordStatus === types.OrderStatus.Canceled ? '取消' : '拒绝'}`);
+          }
         }
         logger.info(`执行订单${this.status.step}[终了] ${Helper.endTimer(timer)}`);
         this.status.step = this.status.step === types.Step.Order1 ? types.Step.Order2 : types.Step.Order1;
@@ -90,6 +102,7 @@ export class Robot {
         logger.info(`执行订单${this.status.step}不满足执行[终了] ${Helper.endTimer(timer)}`);
       }
     } catch(err) {
+      logger.error(`执行订单[异常终了] ${err.message}`);
     }
   }
 
@@ -102,10 +115,14 @@ export class Robot {
     const smaRes = sma({
       values: bars.c
     });
-    if (bars.c.length === 0 || ichimokuRes.length === 0 || smaRes.length === 0 ) {
+    if (bars.c.length === 0 || ichimokuRes.length === 0 || smaRes.length === 0) {
       logger.error(`获取指标数据出错：bars.c: ${bars.c}, ichimokuRes: ${ichimokuRes}, smaRes: ${smaRes}`)
     }
     const lastClose = bars.c[bars.c.length-1];
+    if (!lastClose) {
+      logger.info(`最近k线为空，取消检测。`)
+      return {action: undefined, close: 0};
+    }
     const baseline = ichimokuRes[ichimokuRes.length - 1].base;
     const ma = smaRes[smaRes.length-1];
     let action;

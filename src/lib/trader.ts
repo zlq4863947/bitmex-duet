@@ -139,6 +139,16 @@ export class Trader {
     return res.order;
   }
 
+  async updateLeverage(symbol: string, leverage: number) {
+    // const timer = Helper.getTimer();
+    const res = await this.rest.updateLeverage({symbol, leverage});
+    if (!res) {
+      return;
+    }
+    // logger.info(`更新杠杆指令[终了] ${Helper.endTimer(timer)},  ${JSON.stringify(res)}`);
+    return res;
+  }
+
   async getPosition(symbol: string): Promise<types.Position[] | undefined> {
     const check = await this.check();
     if (!check) {

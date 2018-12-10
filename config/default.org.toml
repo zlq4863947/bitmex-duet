@@ -27,10 +27,14 @@
   symbol = "XBTUSD"
   # 交易数量
   amount = 20
+  # 杠杆倍数
+  leverage = 3
   # 交易方向 Buy/Sell
   side = "Buy"
   # 周期
   resolution = 1
+  # 是否进行真实下单
+  isOrder = true
 
 ###
 ### [log]

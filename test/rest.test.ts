@@ -33,6 +33,18 @@ const testGetCandlestick = async () => {
   //assert(res.orderBooks.length > 0);
 };
 
+const testUpdateLeverage = async () => {
+  
+  const res = await rest.updateLeverage({
+    symbol, 
+    leverage: 5
+  });
+  console.log(JSON.stringify(res));
+  //assert(res.ratelimit.limit === 300);
+  //assert(res.orderBooks.length > 0);
+};
+
 describe('Rest-API测试', () => {
   it('查询K线', testGetCandlestick);
+  it.only('更新杠杆', testUpdateLeverage);
 });

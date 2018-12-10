@@ -21,7 +21,7 @@ export function ichimoku(input: IchimokuInput): IchimokuOutput[] {
     high: input.high,
     low: input.low,
     conversionPeriod: input.conversionPeriod ? input.conversionPeriod : 9,
-    basePeriod: input.basePeriod ? input.basePeriod : 26,
+    basePeriod: input.basePeriod ? input.basePeriod : 30,
     spanPeriod: input.spanPeriod ? input.spanPeriod : 52,
     displacement: input.displacement ? input.displacement : 26,
   });
@@ -34,7 +34,7 @@ export interface SmaInput {
 
 export function sma(input: SmaInput): number[] {
   return ti.SMA.calculate({
-    period: input.period ? input.period : 10,
+    period: input.period ? input.period : 60,
     values: input.values
   });
 }

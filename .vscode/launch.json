@@ -17,6 +17,15 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "bitmex-duet-v1.0.0",
+      "program": "${workspaceFolder}/dist/bitmex-duet-v1.0.0.js",
+      "console": "integratedTerminal",
+      "env": {
+      },
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Mocha Tests",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [
